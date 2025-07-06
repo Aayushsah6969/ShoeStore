@@ -1,0 +1,8 @@
+user signup - login
+
+product upload - edit - delete
+
+orders createOrder - updateOrder
+
+
+
