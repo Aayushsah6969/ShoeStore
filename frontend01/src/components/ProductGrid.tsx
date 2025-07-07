@@ -9,7 +9,8 @@ interface ProductGridProps {
 }
 
 const ProductGrid: React.FC<ProductGridProps> = ({ products, title, showAll = false }) => {
-  const displayProducts = showAll ? products : products.slice(0, 8);
+  // Always show all products
+  const displayProducts = products;
 
   return (
     <div className="py-8 sm:py-12">

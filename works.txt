@@ -2,6 +2,6 @@ cancel the order from order history
 
 /shop page to display all Products
 
-admin -- error in customers, messages 
+
 
 
