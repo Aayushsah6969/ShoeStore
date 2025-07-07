@@ -90,9 +90,9 @@ const Navbar: React.FC = () => {
               </button>
 
               {/* Wishlist - Hidden on mobile */}
-              <button className="hidden sm:block p-2 text-slate-700 hover:text-slate-900 rounded-full hover:bg-slate-100 transition-colors duration-200 relative">
+              {/* <button className="hidden sm:block p-2 text-slate-700 hover:text-slate-900 rounded-full hover:bg-slate-100 transition-colors duration-200 relative">
                 <Heart className="h-5 w-5" />
-              </button>
+              </button> */}
 
               {/* Cart */}
               <Link 
