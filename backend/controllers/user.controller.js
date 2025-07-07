@@ -55,15 +55,24 @@ export const loginUser = async (req, res) => {
 
     res.cookie('shoe_token', token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
+      secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
     });
-    res.json({success:true, message: 'Login successful' });
+
+    res.json({
+      success: true,
+      message: 'Login successful',
+      user: {
+        full_name: user.full_name,
+        email: user.email,
+      },
+    });
   } catch (err) {
     console.error('Login error:', err);
     res.status(500).json({ error: 'Server error' });
   }
 };
+
 
 export const logoutUser = async (req, res) => {
     res.clearCookie('shoe_token', {
