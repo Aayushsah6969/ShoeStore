@@ -2,6 +2,9 @@
 import pool from '../db/db.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
+import { sendResetPasswordEmail } from '../services/email.service.js';
+
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -129,3 +132,51 @@ export const logoutAdmin = async (req, res) => {
     res.json({success:true, message: 'Logout successful' });
 };
 
+export async function requestPasswordReset(req, res) {
+  const { email } = req.body;
+  const token = crypto.randomBytes(32).toString('hex');
+  const expiry = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+
+  const userRes = await pool.query('SELECT full_name FROM users WHERE email = $1', [email]);
+  if (!userRes.rows.length) return res.status(404).json({ success: false, message: 'User not found' });
+  const name = userRes.rows[0].full_name;
+
+  await pool.query(
+    `UPDATE users 
+     SET reset_password_token = $1, reset_password_expires = $2 
+     WHERE email = $3`,
+    [token, expiry, email]
+  );
+
+  const resetLink = `${process.env.APP_URL}/reset-password?token=${token}&email=${encodeURIComponent(email)}`;
+  await sendResetPasswordEmail(email, name, resetLink);
+
+  return res.json({ success: true, message: 'Password reset email sent.' });
+}
+
+
+export async function resetPassword(req, res) {
+  const { email, token, newPassword } = req.body;
+
+  const userRes = await pool.query(
+    `SELECT id, reset_password_expires 
+     FROM users 
+     WHERE email = $1 AND reset_password_token = $2`,
+    [email, token]
+  );
+
+  if (!userRes.rows.length) return res.status(400).json({ success: false, message: 'Invalid token or email' });
+
+  const { id, reset_password_expires: expires } = userRes.rows[0];
+  if (expires < new Date()) {
+    return res.status(400).json({ success: false, message: 'Token has expired' });
+  }
+
+  const hashed = await bcrypt.hash(newPassword, 10);
+  await pool.query(
+    `UPDATE users SET password = $1, reset_password_token = NULL, reset_password_expires = NULL WHERE id = $2`,
+    [hashed, id]
+  );
+
+  return res.json({ success: true, message: 'Password has been reset successfully.' });
+}
