@@ -9,46 +9,203 @@ const Products: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState('all');
   const [filterStatus, setFilterStatus] = useState('all');
+  const [loadingId, setLoadingId] = useState<string | null>(null);
+  const [productsState, setProductsState] = useState(products);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editProduct, setEditProduct] = useState<any>(null);
 
   useEffect(() => {
     loadProducts();
+    // eslint-disable-next-line
   }, []);
 
+  // Fetch products from API with credentials
   const loadProducts = async () => {
     try {
-      await fetchProducts();
+      const res = await fetch('http://localhost:5000/api/products/getall', {
+        method: 'GET',
+        credentials: 'include',
+      });
+      if (!res.ok) throw new Error('Failed to fetch products');
+      const data = await res.json();
+      setProductsState(Array.isArray(data.products) ? data.products : []);
     } catch (error: any) {
       showToast(error.message || 'Failed to load products', 'error');
+      setProductsState([]);
+    }
+  };
+
+  // Update product via API (PUT)
+  const handleUpdate = async (id: string, updateData: any) => {
+    setLoadingId(id);
+    try {
+      const res = await fetch(`http://localhost:5000/api/products/update/${id}`,
+        {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify(updateData),
+        }
+      );
+      if (!res.ok) throw new Error('Failed to update product');
+      showToast('Product updated successfully', 'success');
+      await loadProducts();
+      setEditModalOpen(false);
+    } catch (error: any) {
+      showToast(error.message || 'Failed to update product', 'error');
+    } finally {
+      setLoadingId(null);
+    }
+  };
+
+  // Delete product via API
+  const handleDelete = async (id: string) => {
+    if (window.confirm('Are you sure you want to delete this product?')) {
+      setLoadingId(id);
+      try {
+        const res = await fetch(`http://localhost:5000/api/products/delete/${id}`,
+          {
+            method: 'DELETE',
+            credentials: 'include',
+          }
+        );
+        if (!res.ok) throw new Error('Failed to delete product');
+        showToast('Product deleted successfully', 'success');
+        setProductsState((prev) => prev.filter((p: any) => p.id !== id));
+      } catch (error: any) {
+        showToast(error.message || 'Failed to delete product', 'error');
+      } finally {
+        setLoadingId(null);
+      }
     }
   };
 
   const allCategories = ['all', ...categories];
   const statuses = ['all', 'in_stock', 'out_of_stock'];
 
-  const filteredProducts = products.filter(product => {
-    const matchesSearch = product.product_name.toLowerCase().includes(searchTerm.toLowerCase());
+  const filteredProducts = (productsState || []).filter(product => {
+    const matchesSearch = (product.product_name || '').toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = filterCategory === 'all' || product.category === filterCategory;
     const matchesStatus = filterStatus === 'all' || 
       (filterStatus === 'in_stock' && product.stock_quantity > 0) ||
       (filterStatus === 'out_of_stock' && product.stock_quantity === 0);
-    
     return matchesSearch && matchesCategory && matchesStatus;
   });
-
-  const handleDelete = async (id: string) => {
-    if (window.confirm('Are you sure you want to delete this product?')) {
-      try {
-        await deleteProduct(id);
-        showToast('Product deleted successfully', 'success');
-      } catch (error: any) {
-        showToast(error.message || 'Failed to delete product', 'error');
-      }
-    }
-  };
 
   const getDiscountedPrice = (price: number, discountPercentage?: number) => {
     if (!discountPercentage) return null;
     return price - (price * discountPercentage / 100);
+  };
+
+  // Modal component for editing product
+  type EditModalProps = {
+    open: boolean;
+    onClose: () => void;
+    onSave: (data: any) => void;
+    product: any;
+    loading: boolean;
+  };
+
+  const EditProductModal: React.FC<EditModalProps> = ({ open, onClose, onSave, product, loading }) => {
+    const [form, setForm] = useState({
+      product_name: product?.product_name || '',
+      price: product?.price || 0,
+      discount_percentage: product?.discount_percentage || 0,
+      stock_quantity: product?.stock_quantity || 0,
+      category: product?.category || '',
+      is_featured: product?.is_featured || false,
+      product_images: product?.product_images || [],
+      description: product?.description || '',
+      available_sizes: product?.available_sizes || [],
+    });
+
+    useEffect(() => {
+      setForm({
+        product_name: product?.product_name || '',
+        price: product?.price || 0,
+        discount_percentage: product?.discount_percentage || 0,
+        stock_quantity: product?.stock_quantity || 0,
+        category: product?.category || '',
+        is_featured: product?.is_featured || false,
+        product_images: product?.product_images || [],
+        description: product?.description || '',
+        available_sizes: product?.available_sizes || [],
+      });
+    }, [product]);
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+      const { name, value, type } = e.target;
+      const checked = (e.target as HTMLInputElement).checked;
+      setForm((prev) => ({
+        ...prev,
+        [name]: type === 'checkbox' ? checked : value,
+      }));
+    };
+
+    // For product_images and available_sizes (comma separated)
+    const handleArrayChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const { name, value } = e.target;
+      setForm((prev) => ({
+        ...prev,
+        [name]: value.split(',').map((v) => v.trim()),
+      }));
+    };
+
+    const handleSubmit = (e: React.FormEvent) => {
+      e.preventDefault();
+      onSave(form);
+    };
+
+    if (!open) return null;
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+        <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative max-h-[90vh] overflow-y-auto">
+          <button className="absolute top-2 right-2 text-gray-400 hover:text-gray-600" onClick={onClose}>&times;</button>
+          <h2 className="text-xl font-bold mb-4">Edit Product</h2>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium">Name</label>
+              <input name="product_name" value={form.product_name} onChange={handleChange} className="w-full border rounded px-3 py-2" required />
+            </div>
+            <div>
+              <label className="block text-sm font-medium">Price</label>
+              <input name="price" type="number" value={form.price} onChange={handleChange} className="w-full border rounded px-3 py-2" required />
+            </div>
+            <div>
+              <label className="block text-sm font-medium">Discount (%)</label>
+              <input name="discount_percentage" type="number" value={form.discount_percentage} onChange={handleChange} className="w-full border rounded px-3 py-2" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium">Stock</label>
+              <input name="stock_quantity" type="number" value={form.stock_quantity} onChange={handleChange} className="w-full border rounded px-3 py-2" required />
+            </div>
+            <div>
+              <label className="block text-sm font-medium">Category</label>
+              <input name="category" value={form.category} onChange={handleChange} className="w-full border rounded px-3 py-2" required />
+            </div>
+            <div>
+              <label className="block text-sm font-medium">Description</label>
+              <textarea name="description" value={form.description} onChange={handleChange} className="w-full border rounded px-3 py-2" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium">Product Images (comma separated URLs)</label>
+              <input name="product_images" value={form.product_images.join(', ')} onChange={handleArrayChange} className="w-full border rounded px-3 py-2" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium">Available Sizes (comma separated)</label>
+              <input name="available_sizes" value={form.available_sizes.join(', ')} onChange={handleArrayChange} className="w-full border rounded px-3 py-2" />
+            </div>
+            <div className="flex items-center">
+              <input name="is_featured" type="checkbox" checked={form.is_featured} onChange={handleChange} className="mr-2" />
+              <label className="text-sm">Featured</label>
+            </div>
+            <button type="submit" className="w-full bg-orange-500 text-white py-2 rounded hover:bg-orange-600" disabled={loading}>
+              {loading ? 'Saving...' : 'Save Changes'}
+            </button>
+          </form>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -201,12 +358,17 @@ const Products: React.FC = () => {
                           <button className="text-blue-600 hover:text-blue-800 p-1 rounded">
                             <Eye className="w-4 h-4" />
                           </button>
-                          <button className="text-green-600 hover:text-green-800 p-1 rounded">
+                          <button
+                            className="text-green-600 hover:text-green-800 p-1 rounded"
+                            onClick={() => { setEditProduct(product); setEditModalOpen(true); }}
+                            disabled={loadingId === product.id}
+                          >
                             <Edit className="w-4 h-4" />
                           </button>
                           <button
                             onClick={() => handleDelete(product.id)}
                             className="text-red-600 hover:text-red-800 p-1 rounded"
+                            disabled={loadingId === product.id}
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -226,6 +388,14 @@ const Products: React.FC = () => {
           </div>
         )}
       </div>
+
+      <EditProductModal
+        open={editModalOpen}
+        onClose={() => setEditModalOpen(false)}
+        onSave={(data) => editProduct && handleUpdate(editProduct.id, data)}
+        product={editProduct}
+        loading={!!loadingId}
+      />
     </div>
   );
 };

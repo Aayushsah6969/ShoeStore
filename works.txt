@@ -1,8 +1,7 @@
-user signup - login
+cancel the order from order history
 
-product upload - edit - delete
+/shop page to display all Products
 
-orders createOrder - updateOrder
-
+admin -- error in customers, messages 
 
 

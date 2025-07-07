@@ -91,9 +91,14 @@ export const updateOrderStatus = async (req, res) => {
 export const getAllOrders = async (req, res) => {
   try {
     const orders = await pool.query(
-      `SELECT orders.*, users.email FROM orders
+      `SELECT 
+         orders.*, 
+         users.full_name AS customer_name, 
+         users.email AS customer_email, 
+         users.id AS user_id 
+       FROM orders
        JOIN users ON orders.user_id = users.id
-       ORDER BY created_at DESC`
+       ORDER BY orders.created_at DESC`
     );
 
     res.json({ success: true, orders: orders.rows });
@@ -102,6 +107,7 @@ export const getAllOrders = async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+
 
 /**
  * User cancels their own order if still pending

@@ -1,65 +1,67 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { authService, AdminUser } from '../services/authService';
+import { authService } from '../services/authService';
 
 interface AuthState {
-  user: AdminUser | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => Promise<void>;
-  verifyAuth: () => Promise<void>;
+  verifyAuth: () => void; // only checks cookie
 }
 
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set, get) => ({
-      user: null,
+    (set) => ({
       isAuthenticated: false,
       isLoading: false,
-      
-      login: async (email: string, password: string) => {
+
+      login: async (email, password) => {
         set({ isLoading: true });
         try {
-          const user = await authService.adminLogin({ email, password });
-          set({ user, isAuthenticated: true, isLoading: false });
-          return true;
+          const res = await authService.adminLogin({ email, password });
+          if (res.success) {
+            set({ isAuthenticated: true, isLoading: false });
+            return true;
+          } else {
+            set({ isAuthenticated: false, isLoading: false });
+            return false;
+          }
         } catch (error) {
-          set({ isLoading: false });
           console.error('Login error:', error);
+          set({ isAuthenticated: false, isLoading: false });
           return false;
         }
       },
-      
+
       logout: async () => {
         try {
           await authService.adminLogout();
         } catch (error) {
           console.error('Logout error:', error);
         } finally {
-          set({ user: null, isAuthenticated: false });
+          set({ isAuthenticated: false });
         }
       },
-      
-      verifyAuth: async () => {
-        set({ isLoading: true });
-        try {
-          const user = await authService.verifyAdminToken();
-          if (user && user.is_admin) {
-            set({ user, isAuthenticated: true, isLoading: false });
-          } else {
-            set({ user: null, isAuthenticated: false, isLoading: false });
-          }
-        } catch (error) {
-          set({ user: null, isAuthenticated: false, isLoading: false });
-        }
-      }
+
+      verifyAuth: () => {
+  set({ isLoading: true });
+
+  const hasToken = document.cookie
+    .split(';')
+    .some((c) => c.trim().startsWith('admin_token='));
+
+  set({
+    isAuthenticated: hasToken,
+    isLoading: false
+  });
+}
+
     }),
     {
       name: 'auth-storage',
-      partialize: (state) => ({ 
-        user: state.user, 
-        isAuthenticated: state.isAuthenticated 
+      partialize: (state) => ({
+        isAuthenticated: state.isAuthenticated
       })
     }
   )

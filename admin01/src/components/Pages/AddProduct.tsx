@@ -4,12 +4,12 @@ import { useDataStore } from '../../stores/dataStore';
 import { useUIStore } from '../../stores/uiStore';
 
 const AddProduct: React.FC = () => {
-  const { addProduct, categories } = useDataStore();
+  const { addProduct } = useDataStore();
   const { showToast, setCurrentPage } = useUIStore();
   
   const [formData, setFormData] = useState({
     product_name: '',
-    category: categories[0] || '',
+    category: 'Sports',
     price: '',
     discount_percentage: '',
     stock_quantity: '',
@@ -97,11 +97,22 @@ const AddProduct: React.FC = () => {
 
       await addProduct(productData);
       showToast('Product added successfully!', 'success');
-      setCurrentPage('products');
+
     } catch (error: any) {
       showToast(error.message || 'Failed to add product', 'error');
     } finally {
       setIsSubmitting(false);
+      setFormData({
+        product_name: '',
+        category: 'Sports',
+        price: '',
+        discount_percentage: '',
+        stock_quantity: '',
+        description: '',
+        available_sizes: [],
+        is_featured: false,
+        product_images: ['']
+      });
     }
   };
 
@@ -142,7 +153,7 @@ const AddProduct: React.FC = () => {
                 disabled={isSubmitting}
               >
                 <option value="">Select Category</option>
-                {categories.map(category => (
+                {['Sports', 'Fashion', 'Party', 'Tourist', 'Jungle'].map(category => (
                   <option key={category} value={category}>{category}</option>
                 ))}
               </select>

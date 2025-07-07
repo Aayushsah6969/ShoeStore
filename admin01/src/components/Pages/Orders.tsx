@@ -1,46 +1,65 @@
+// ... (imports remain the same)
 import React, { useState, useEffect } from 'react';
 import { Eye, Filter, Search, RefreshCw, X } from 'lucide-react';
-import { useDataStore } from '../../stores/dataStore';
 import { useUIStore } from '../../stores/uiStore';
 
 const Orders: React.FC = () => {
-  const { orders, ordersLoading, fetchOrders, updateOrderStatus } = useDataStore();
   const { showToast } = useUIStore();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
+  const [ordersState, setOrdersState] = useState<any[]>([]);
+  const [ordersLoading, setOrdersLoading] = useState(false);
 
   useEffect(() => {
     loadOrders();
   }, []);
 
   const loadOrders = async () => {
+    setOrdersLoading(true);
     try {
-      await fetchOrders();
+      const res = await fetch('http://localhost:5000/api/orders/getAllOrders', {
+        method: 'GET',
+        credentials: 'include',
+      });
+      if (!res.ok) throw new Error('Failed to fetch orders');
+      const data = await res.json();
+      setOrdersState(Array.isArray(data.orders) ? data.orders : []);
     } catch (error: any) {
       showToast(error.message || 'Failed to load orders', 'error');
+      setOrdersState([]);
+    } finally {
+      setOrdersLoading(false);
+    }
+  };
+
+  const handleStatusChange = async (orderId: string, newStatus: string) => {
+    try {
+      const res = await fetch(`http://localhost:5000/api/orders/update/${orderId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ delivery_status: newStatus }),
+      });
+      if (!res.ok) throw new Error('Failed to update order status');
+      showToast(`Order status updated to ${newStatus}`, 'success');
+      await loadOrders();
+    } catch (error: any) {
+      showToast(error.message || 'Failed to update order status', 'error');
     }
   };
 
   const statuses = ['all', 'Pending', 'Shipped', 'Delivered', 'Cancelled'];
 
-  const filteredOrders = orders.filter(order => {
-    const matchesSearch = order.customer_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         order.customer_email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         order.id.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = filterStatus === 'all' || order.delivery_status === filterStatus;
-    
+  const filteredOrders = ordersState.filter(order => {
+    const matchesSearch =
+      order.customer_email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.customer_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.id?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus =
+      filterStatus === 'all' || order.delivery_status === filterStatus;
     return matchesSearch && matchesStatus;
   });
-
-  const handleStatusChange = async (orderId: string, newStatus: string) => {
-    try {
-      await updateOrderStatus(orderId, newStatus);
-      showToast(`Order status updated to ${newStatus}`, 'success');
-    } catch (error: any) {
-      showToast(error.message || 'Failed to update order status', 'error');
-    }
-  };
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -72,15 +91,12 @@ const Orders: React.FC = () => {
           <div className="p-6 border-b">
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-bold text-gray-800">Order Details</h2>
-              <button
-                onClick={onClose}
-                className="text-gray-500 hover:text-gray-700"
-              >
+              <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
                 <X className="w-6 h-6" />
               </button>
             </div>
           </div>
-          
+
           <div className="p-6 space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
@@ -88,15 +104,19 @@ const Orders: React.FC = () => {
                 <div className="space-y-2">
                   <p><span className="font-medium">Order ID:</span> {order.id}</p>
                   <p><span className="font-medium">Date:</span> {formatDate(order.created_at)}</p>
-                  <p><span className="font-medium">Status:</span> 
+                  <p>
+                    <span className="font-medium">Status:</span>
                     <span className={`ml-2 px-2 py-1 text-xs rounded-full ${getStatusColor(order.delivery_status)}`}>
                       {order.delivery_status}
                     </span>
                   </p>
-                  <p><span className="font-medium">Total:</span> ${order.total_amount.toFixed(2)}</p>
+                  <p>
+                    <span className="font-medium">Total:</span>{' '}
+                    ${order.total_price ? Number(order.total_price).toFixed(2) : '0.00'}
+                  </p>
                 </div>
               </div>
-              
+
               <div>
                 <h3 className="text-lg font-semibold text-gray-800 mb-3">Customer Information</h3>
                 <div className="space-y-2">
@@ -106,23 +126,35 @@ const Orders: React.FC = () => {
                 </div>
               </div>
             </div>
-            
+
             {order.order_items && order.order_items.length > 0 && (
               <div>
                 <h3 className="text-lg font-semibold text-gray-800 mb-3">Order Items</h3>
                 <div className="space-y-2">
-                  {order.order_items.map((item: any, index: number) => (
-                    <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded">
-                      <div>
-                        <p className="font-medium">{item.product_name}</p>
-                        <p className="text-sm text-gray-600">
-                          Quantity: {item.quantity}
-                          {item.size && ` | Size: ${item.size}`}
+                  {order.order_items.map((item: any, index: number) => {
+                    let price = 0;
+                    if (item.price !== undefined) {
+                      price = Number(item.price);
+                    } else if (item.price_at_purchase !== undefined) {
+                      price = Number(item.price_at_purchase);
+                    }
+                    const quantity = Number(item.quantity) || 1;
+                    const total = !isNaN(price) && !isNaN(quantity) ? price * quantity : 0;
+                    return (
+                      <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded">
+                        <div>
+                          <p className="font-medium">{item.product_name}</p>
+                          <p className="text-sm text-gray-600">
+                            Quantity: {item.quantity}
+                            {item.size && ` | Size: ${item.size}`}
+                          </p>
+                        </div>
+                        <p className="font-medium">
+                          ${typeof total === 'number' && isFinite(total) ? total.toFixed(2) : '0.00'}
                         </p>
                       </div>
-                      <p className="font-medium">${(item.price * item.quantity).toFixed(2)}</p>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -146,7 +178,6 @@ const Orders: React.FC = () => {
         </button>
       </div>
 
-      {/* Filters */}
       <div className="bg-white rounded-lg shadow-sm p-6 border">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="relative">
@@ -159,7 +190,7 @@ const Orders: React.FC = () => {
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
             />
           </div>
-          
+
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
@@ -174,7 +205,6 @@ const Orders: React.FC = () => {
         </div>
       </div>
 
-      {/* Orders Table */}
       <div className="bg-white rounded-lg shadow-sm border">
         {ordersLoading ? (
           <div className="flex items-center justify-center py-12">
@@ -186,32 +216,18 @@ const Orders: React.FC = () => {
             <table className="w-full">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Order ID
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Customer
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Total
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Date
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order ID</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {filteredOrders.map((order) => (
                   <tr key={order.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      {order.id}
-                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{order.id}</td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div>
                         <div className="text-sm font-medium text-gray-900">{order.customer_name || 'N/A'}</div>
@@ -219,7 +235,7 @@ const Orders: React.FC = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      ${order.total_amount.toFixed(2)}
+                      ${order.total_price ? Number(order.total_price).toFixed(2) : '0.00'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <select
@@ -250,7 +266,7 @@ const Orders: React.FC = () => {
             </table>
           </div>
         )}
-        
+
         {!ordersLoading && filteredOrders.length === 0 && (
           <div className="text-center py-12">
             <div className="text-gray-500">No orders found matching your criteria.</div>
@@ -258,12 +274,8 @@ const Orders: React.FC = () => {
         )}
       </div>
 
-      {/* Order Detail Modal */}
       {selectedOrder && (
-        <OrderDetailModal
-          order={selectedOrder}
-          onClose={() => setSelectedOrder(null)}
-        />
+        <OrderDetailModal order={selectedOrder} onClose={() => setSelectedOrder(null)} />
       )}
     </div>
   );

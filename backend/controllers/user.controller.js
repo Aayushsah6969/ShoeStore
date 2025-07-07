@@ -108,7 +108,7 @@ export const adminLogin = async (req, res) => {
     });
 
     res.cookie('admin_token', token, {
-      httpOnly: true,
+      // httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
     });

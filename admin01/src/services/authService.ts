@@ -5,18 +5,14 @@ export interface LoginCredentials {
   password: string;
 }
 
-export interface AdminUser {
-  id: string;
-  email: string;
-  name: string;
-  is_admin: boolean;
-}
-
 export const authService = {
-  async adminLogin(credentials: LoginCredentials): Promise<AdminUser> {
+  async adminLogin(credentials: LoginCredentials): Promise<{ success: boolean }> {
     try {
-      const response = await api.post('/api/users/admin-login', credentials);
-      return response.data;
+      const response = await api.post('/api/users/admin-login', credentials, {
+        withCredentials: true, // send/receive cookies
+      });
+
+      return response.data; // { success: true }
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Login failed');
     }
@@ -24,17 +20,16 @@ export const authService = {
 
   async adminLogout(): Promise<void> {
     try {
-      await api.get('/api/users/admin-logout');
+      await api.get('/api/users/admin-logout', {
+        withCredentials: true,
+      });
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Logout failed');
     }
   },
 
-  async verifyAdminToken(): Promise<AdminUser | null> {
-    try {
-      console.log("This is admin")
-    } catch (error) {
-      return null;
-    }
+  async verifyAdminToken(): Promise<void> {
+    // This is no longer used since you're checking cookie directly
+    return;
   }
 };
