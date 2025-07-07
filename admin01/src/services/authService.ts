@@ -32,8 +32,7 @@ export const authService = {
 
   async verifyAdminToken(): Promise<AdminUser | null> {
     try {
-      const response = await api.get('/api/users/verify-admin');
-      return response.data;
+      console.log("This is admin")
     } catch (error) {
       return null;
     }

@@ -37,11 +37,13 @@ export const useDataStore = create<DataState>((set, get) => ({
     set({ productsLoading: true });
     try {
       const products = await productService.getAllProducts();
-      const categories = [...new Set(products.map(p => p.category))];
-      set({ products, categories, productsLoading: false });
+      // Ensure products is always an array
+      const safeProducts = Array.isArray(products) ? products : [];
+      const categories = [...new Set(safeProducts.map(p => p.category))];
+      set({ products: safeProducts, categories, productsLoading: false });
     } catch (error) {
       console.error('Failed to fetch products:', error);
-      set({ productsLoading: false });
+      set({ products: [], productsLoading: false });
       throw error;
     }
   },
@@ -90,10 +92,12 @@ export const useDataStore = create<DataState>((set, get) => ({
     set({ ordersLoading: true });
     try {
       const orders = await orderService.getAllOrders();
-      set({ orders, ordersLoading: false });
+      // Ensure orders is always an array
+      const safeOrders = Array.isArray(orders) ? orders : [];
+      set({ orders: safeOrders, ordersLoading: false });
     } catch (error) {
       console.error('Failed to fetch orders:', error);
-      set({ ordersLoading: false });
+      set({ orders: [], ordersLoading: false });
       throw error;
     }
   },

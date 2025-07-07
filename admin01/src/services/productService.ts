@@ -32,7 +32,7 @@ export interface UpdateProductData extends Partial<CreateProductData> {}
 export const productService = {
   async getAllProducts(): Promise<Product[]> {
     try {
-      const response = await api.get('/api/products');
+      const response = await api.get('/api/products/getall');
       return response.data;
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Failed to fetch products');
