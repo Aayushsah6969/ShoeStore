@@ -21,7 +21,8 @@ const ProductDetail: React.FC = () => {
     removeFromWishlist, 
     clearCart,
     getProductById,
-    products
+    products,
+    user // <-- get user from store
   } = useStore();
 
   // Fetch product details
@@ -84,6 +85,10 @@ const ProductDetail: React.FC = () => {
   const handleBuyNow = () => {
     if (!selectedSize) {
       alert('Please select size');
+      return;
+    }
+    if (!user) {
+      navigate('/login');
       return;
     }
     clearCart();
@@ -184,6 +189,12 @@ const ProductDetail: React.FC = () => {
           <div className="mb-6">
             <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-2">{product.name}</h1>
             <p className="text-lg text-slate-600 mb-4">{product.brand}</p>
+            {/* Stock Quantity */}
+            {typeof product.stock_quantity !== 'undefined' && (
+              <p className="text-sm text-slate-700 mb-2">
+                <span className="stock_quantity font-semibold">In Stock:</span> {product.stock_quantity}
+              </p>
+            )}
             {/* Rating */}
             <div className="flex items-center mb-4">
               <div className="flex items-center">

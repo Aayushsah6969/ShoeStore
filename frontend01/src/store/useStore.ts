@@ -230,32 +230,32 @@ export const useStore = create<StoreState>()(
           const orders = apiOrders.map(order => ({
             id: order.id,
             date: order.created_at,
-            total: order.total_amount,
-            status: order.status as any,
+            total: parseFloat(order.total_price),
+            status: order.delivery_status || order.status || 'pending',
             items: order.order_items.map(item => ({
-              id: item.id,
+              id: item.product_id + '-' + (item.size || '') + '-' + (item.price_at_purchase || ''),
               product: {
-                id: item.product?.id || item.product_id,
-                name: item.product?.name || 'Unknown Product',
-                image: item.product?.image || '',
-                brand: item.product?.brand || '',
-                price: item.price,
-                // Add other required product fields with defaults
+                id: item.product_id,
+                name: item.product_name || 'Unknown Product',
+                image: item.image || '',
+                brand: '',
+                price: parseFloat(item.price_at_purchase),
                 originalPrice: undefined,
-                images: [item.product?.image || ''],
+                images: [item.image || ''],
                 description: '',
                 category: '',
                 sizes: [item.size],
-                colors: [item.color || ''],
+                colors: [],
                 inStock: true,
                 featured: false,
                 onSale: false,
                 rating: 0,
-                reviews: 0
+                reviews: 0,
+                stock_quantity: 0 // required by Product interface
               },
               quantity: item.quantity,
               selectedSize: item.size,
-              selectedColor: item.color || ''
+              selectedColor: ''
             }))
           }));
           set({ orders, ordersLoading: false });

@@ -10,7 +10,8 @@ const Checkout: React.FC = () => {
     getCartTotal, 
     clearCart, 
     createOrder,
-    isAuthenticated 
+    isAuthenticated,
+    user // <-- get user from store
   } = useStore();
   
   const [isProcessing, setIsProcessing] = useState(false);
@@ -35,6 +36,17 @@ const Checkout: React.FC = () => {
   const shipping = total > 50 ? 0 : 9.99;
   const tax = total * 0.08;
   const finalTotal = total + shipping + tax;
+
+  // Prefill email and firstName from user if available
+  React.useEffect(() => {
+    if (user) {
+      setFormData(prev => ({
+        ...prev,
+        email: user.email || '',
+        firstName: user.name || ''
+      }));
+    }
+  }, [user]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -286,6 +298,7 @@ const Checkout: React.FC = () => {
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                     required
+                    disabled // make email not editable
                   />
                 </div>
               </div>

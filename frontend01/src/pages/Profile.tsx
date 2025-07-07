@@ -154,10 +154,10 @@ const Profile: React.FC = () => {
                         </div>
                         <div className="text-right">
                           <div className="text-lg font-semibold text-slate-900">
-                            ${order.total.toFixed(2)}
+                            ${order.total}
                           </div>
                           <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
-                            {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                            {order.status }
                           </span>
                         </div>
                       </div>
@@ -177,7 +177,9 @@ const Profile: React.FC = () => {
                               </p>
                             </div>
                             <div className="text-sm text-slate-900">
-                              ${(item.product.price * item.quantity).toFixed(2)}
+                              {item && item.product && typeof item.product.price === 'number' && typeof item.quantity === 'number' && !isNaN(item.product.price) && !isNaN(item.quantity)
+                                ? `$${(item.product.price * item.quantity).toFixed(2)}`
+                                : '--'}
                             </div>
                           </div>
                         ))}

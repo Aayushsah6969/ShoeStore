@@ -15,6 +15,7 @@ export interface Product {
   onSale: boolean;
   rating: number;
   reviews: number;
+  stock_quantity: number; // added to match API
 }
 
 export interface CartItem {
