@@ -5,11 +5,9 @@ import ProductCard from './ProductCard';
 interface ProductGridProps {
   products: Product[];
   title?: string;
-  showAll?: boolean;
 }
 
-const ProductGrid: React.FC<ProductGridProps> = ({ products, title, showAll = false }) => {
-  // Always show all products
+const ProductGrid: React.FC<ProductGridProps> = ({ products, title }) => {
   const displayProducts = products;
 
   return (

@@ -68,7 +68,7 @@ const Filters: React.FC<FiltersProps> = ({ isOpen, onClose }) => {
                     onChange={(e) => handlePriceChange(Number(e.target.value), 0)}
                     className="w-24 px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                     min="0"
-                    max="500"
+                    max="50000"
                   />
                   <span className="text-slate-500">to</span>
                   <input
@@ -77,13 +77,13 @@ const Filters: React.FC<FiltersProps> = ({ isOpen, onClose }) => {
                     onChange={(e) => handlePriceChange(Number(e.target.value), 1)}
                     className="w-24 px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                     min="0"
-                    max="500"
+                    max="50000"
                   />
                 </div>
                 <input
                   type="range"
                   min="0"
-                  max="500"
+                  max="50000"
                   value={filters.priceRange[1]}
                   onChange={(e) => handlePriceChange(Number(e.target.value), 1)}
                   className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer"

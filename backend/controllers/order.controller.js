@@ -113,7 +113,7 @@ export const getAllOrders = async (req, res) => {
  * User cancels their own order if still pending
  */
 export const cancelOrder = async (req, res) => {
-  const { id } = req.params;
+  const { id } = req.body;
   const userId = req.user.id;
 
   try {

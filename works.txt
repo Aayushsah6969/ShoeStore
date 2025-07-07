@@ -1,6 +1,6 @@
-cancel the order from order history
 
-/shop page to display all Products
+
+
 
 
 

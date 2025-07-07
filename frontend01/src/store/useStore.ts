@@ -55,7 +55,7 @@ interface StoreState {
 
 const defaultFilters: FilterState = {
   search: '',
-  priceRange: [0, 300],
+  priceRange: [0, 10000],
   brands: [],
   sizes: [],
   colors: [],
