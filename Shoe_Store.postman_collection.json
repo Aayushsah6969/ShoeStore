@@ -1,0 +1,497 @@
+{
+	"info": {
+		"_postman_id": "ce1c0925-18be-4dc4-ad94-6ac603089d2e",
+		"name": "Shoe_Store",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "44772032"
+	},
+	"item": [
+		{
+			"name": "blank",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5000/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "signup",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"full_name\":\"aayush\",\n    \"email\":\"a@gmail.com\",\n    \"password\":\"12345678\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/users/signup",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"users",
+						"signup"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "login",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\":\"a@gmail.com\",\n    \"password\":\"12345678\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/users/login",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"users",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "logout",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\":\"a@gmail.com\",\n    \"password\":\"12345678\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/users/logout",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"users",
+						"logout"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "upload_products",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"product_name\": \"New Balance 574 Core\",\n  \"category\": \"Casual\",\n  \"price\": 89.99,\n  \"discount_percentage\": 0,\n  \"stock_quantity\": 25,\n  \"product_images\": [\n    \"https://shopcgx.com/products/u574rbj-u-574-vintage-indigo-white\", \n    \"https://www.lwshoes.com/products/pc574evn\"\n  ],\n  \"description\": \"The iconic New Balance 574 combines suede and mesh upper with ENCAP cushioning for all‑day comfort; available in multiple colorways.\",\n  \"is_featured\": false,\n  \"available_sizes\": [\"6\", \"7\", \"8\", \"9\", \"10\", \"11\", \"12\"]\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/products/upload",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"products",
+						"upload"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "adminLogin",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\":\"adminShoe@gmail.com\",\n    \"password\":\"admin123\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/users/admin-login",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"users",
+						"admin-login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "adminLogout",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\":\"adminShoe@gmail.com\",\n    \"password\":\"admin123\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/users/admin-logout",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"users",
+						"admin-logout"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getProducts",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\":\"a@gmail.com\",\n    \"password\":\"12345678\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/products/getall",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"products",
+						"getall"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getOneProduct",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\":\"a@gmail.com\",\n    \"password\":\"12345678\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/products/getall/048b7b7d-5ff3-4b60-850d-e31490a297e2",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"products",
+						"getall",
+						"048b7b7d-5ff3-4b60-850d-e31490a297e2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "UpdateProduct",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"product_name\": \"Nike Air Max Updated\",\n  \"category\": \"Running\",\n  \"price\": 139.99,\n  \"discount_percentage\": 8,\n  \"stock_quantity\": 18,\n  \"product_images\": [\n    \"https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?w=600&auto=format&fit=crop&q=60\"\n  ],\n  \"description\": \"Updated description for the Nike Air Max.\",\n  \"is_featured\": true,\n  \"available_sizes\": [\"8\", \"9\", \"10\"]\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/products/update/048b7b7d-5ff3-4b60-850d-e31490a297e2",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"products",
+						"update",
+						"048b7b7d-5ff3-4b60-850d-e31490a297e2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "deleteProduct",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\":\"a@gmail.com\",\n    \"password\":\"12345678\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/products/delete/cb023b52-0890-4677-bbef-71aa83abfc2b",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"products",
+						"delete",
+						"cb023b52-0890-4677-bbef-71aa83abfc2b"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "createOrder",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"order_items\": [\n    {\n      \"product_id\": \"d22bdf73-bd12-4aad-bf7c-3f06de9cf1c7\",\n      \"product_name\": \"Adidas Ultraboost\",\n      \"price\": 149.99,\n      \"quantity\": 2,\n      \"size\": \"9\"\n    }\n  ],\n  \"total_price\": 149.99\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/orders/create",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"orders",
+						"create"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getMyOrders",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/orders/my-orders",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"orders",
+						"my-orders"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getAllOrders",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"order_items\": [\n    {\n      \"product_id\": \"d22bdf73-bd12-4aad-bf7c-3f06de9cf1c7\",\n      \"product_name\": \"Adidas Ultraboost\",\n      \"price\": 149.99,\n      \"quantity\": 2,\n      \"size\": \"9\"\n    }\n  ],\n  \"total_price\": 149.99\n}\n"
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/orders/getAllOrders",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"orders",
+						"getAllOrders"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "updateOrder",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"delivery_status\":\"Delivered\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/orders/update/df69c410-cd1b-4233-8e61-3c66bb82efdd",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"orders",
+						"update",
+						"df69c410-cd1b-4233-8e61-3c66bb82efdd"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "dashboard-data",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\":\"adminShoe@gmail.com\",\n    \"password\":\"admin123\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/users/dashboard-data",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"users",
+						"dashboard-data"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "payments data",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\":\"adminShoe@gmail.com\",\n    \"password\":\"admin123\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/users/payments-data",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"users",
+						"payments-data"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
