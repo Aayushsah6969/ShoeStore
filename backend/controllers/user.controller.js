@@ -134,49 +134,90 @@ export const logoutAdmin = async (req, res) => {
 
 export async function requestPasswordReset(req, res) {
   const { email } = req.body;
+
+  if (!email || typeof email !== 'string') {
+    return res.status(400).json({ success: false, message: 'Valid email is required.' });
+  }
+
   const token = crypto.randomBytes(32).toString('hex');
   const expiry = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
 
-  const userRes = await pool.query('SELECT full_name FROM users WHERE email = $1', [email]);
-  if (!userRes.rows.length) return res.status(404).json({ success: false, message: 'User not found' });
-  const name = userRes.rows[0].full_name;
+  try {
+    const userRes = await pool.query(
+      'SELECT full_name FROM users WHERE email = $1',
+      [email]
+    );
 
-  await pool.query(
-    `UPDATE users 
-     SET reset_password_token = $1, reset_password_expires = $2 
-     WHERE email = $3`,
-    [token, expiry, email]
-  );
+    if (!userRes.rows.length) {
+      return res.status(404).json({ success: false, message: 'User not found.' });
+    }
 
-  const resetLink = `${process.env.APP_URL}/reset-password?token=${token}&email=${encodeURIComponent(email)}`;
-  await sendResetPasswordEmail(email, name, resetLink);
+    const name = userRes.rows[0].full_name;
 
-  return res.json({ success: true, message: 'Password reset email sent.' });
+    await pool.query(
+      `UPDATE users 
+       SET reset_password_token = $1, reset_password_expires = $2 
+       WHERE email = $3`,
+      [token, expiry, email]
+    );
+
+    const resetLink = `${process.env.APP_URL}/reset-password?token=${token}&email=${encodeURIComponent(email)}`;
+
+    await sendResetPasswordEmail({ toEmail: email, toName: name, resetUrl: resetLink });
+
+    return res.status(200).json({ success: true, message: 'Password reset email sent.' });
+
+  } catch (err) {
+    console.error('Error during password reset request:', err);
+    return res.status(500).json({ success: false, message: 'Server error. Please try again later.' });
+  }
 }
-
 
 export async function resetPassword(req, res) {
   const { email, token, newPassword } = req.body;
 
-  const userRes = await pool.query(
-    `SELECT id, reset_password_expires 
-     FROM users 
-     WHERE email = $1 AND reset_password_token = $2`,
-    [email, token]
-  );
-
-  if (!userRes.rows.length) return res.status(400).json({ success: false, message: 'Invalid token or email' });
-
-  const { id, reset_password_expires: expires } = userRes.rows[0];
-  if (expires < new Date()) {
-    return res.status(400).json({ success: false, message: 'Token has expired' });
+  if (!email || !token || !newPassword) {
+    return res.status(400).json({ success: false, message: 'Email, token, and new password are required.' });
   }
 
-  const hashed = await bcrypt.hash(newPassword, 10);
-  await pool.query(
-    `UPDATE users SET password = $1, reset_password_token = NULL, reset_password_expires = NULL WHERE id = $2`,
-    [hashed, id]
-  );
+  try {
+    const userRes = await pool.query(
+      `SELECT id, full_name, reset_password_expires 
+       FROM users 
+       WHERE email = $1 AND reset_password_token = $2`,
+      [email, token]
+    );
 
-  return res.json({ success: true, message: 'Password has been reset successfully.' });
+    if (!userRes.rows.length) {
+      return res.status(400).json({ success: false, message: 'Invalid token or email.' });
+    }
+
+    const { id, full_name: name, reset_password_expires: expires } = userRes.rows[0];
+
+    if (new Date(expires) < new Date()) {
+      return res.status(400).json({ success: false, message: 'Token has expired.' });
+    }
+
+    const hashed = await bcrypt.hash(newPassword, 10);
+
+    await pool.query(
+      `UPDATE users 
+       SET password = $1, reset_password_token = NULL, reset_password_expires = NULL 
+       WHERE id = $2`,
+      [hashed, id]
+    );
+
+    // Send confirmation email
+    await sendResetPasswordEmail({
+      toEmail: email,
+      toName: name,
+      isConfirmation: true // assuming sendResetPasswordEmail handles this
+    });
+
+    return res.status(200).json({ success: true, message: 'Password has been reset successfully.' });
+
+  } catch (err) {
+    console.error('Error during password reset:', err);
+    return res.status(500).json({ success: false, message: 'Server error. Please try again later.' });
+  }
 }
