@@ -122,6 +122,11 @@ npm run dev
 - User management
 - Admin authentication
 
+#### 🛡️ Default Admin Panel Credentials
+
+> **Admin Email:** `adminShoe@gmail.com`  
+> **Admin Password:** `admin123`
+
 ---
 
 ## 📝 Client Handoff Steps
