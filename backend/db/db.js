@@ -7,15 +7,15 @@ dotenv.config();
 const { Pool } = pg;
 
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false, // Needed for some cloud DB providers (e.g., Railway, Supabase)
-  },
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  host: process.env.DB_HOST,
+  port: process.env.DB_PORT,
+  database: process.env.DB_NAME,
 });
 
-// Optional: test connection once on startup
 pool.connect()
-  .then(() => console.log('🟢 Connected to PostgreSQL DB'))
+  .then(() => console.log('🟢 Connected to local PostgreSQL DB'))
   .catch((err) => console.error('🔴 DB Connection Error:', err));
 
 export default pool;
