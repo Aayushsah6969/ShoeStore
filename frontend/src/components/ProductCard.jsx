@@ -118,13 +118,14 @@ const ProductCard = ({ product }) => {
             )}
           </div>
         </Link>
-        {/* Mobile Add to Cart Button */}
+
+        {/* Add to Cart Button - Bottom Right Corner */}
         <button
           onClick={handleAddToCart}
-          className="lg:hidden w-full mt-2 bg-slate-800 text-white py-1.5 rounded-md hover:bg-slate-900 transition-colors duration-200 flex items-center justify-center space-x-2 text-xs"
+          className="absolute bottom-2 right-2 p-2 rounded-full bg-slate-800 text-white hover:bg-slate-900 transition-colors duration-200 shadow-md transform hover:scale-105"
+          aria-label="Add to Cart"
         >
           <ShoppingCart className="h-4 w-4" />
-          <span>Add to Cart</span>
         </button>
       </div>
     </div>
