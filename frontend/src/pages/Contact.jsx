@@ -1,58 +1,7 @@
-import React, { useState } from 'react';
-import { Mail, Phone, MapPin, Send, CheckCircle } from 'lucide-react';
+import React from 'react';
+import { Mail, Phone, MapPin, Send } from 'lucide-react';
 
 const Contact = () => {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    subject: '',
-    message: ''
-  });
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [submissionStatus, setSubmissionStatus] = useState('');
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setSubmissionStatus('Sending...');
-
-    const formDataToSend = new FormData();
-    formDataToSend.append('access_key', '77d0beee-9df2-4865-9034-f9de9571bc89');
-    Object.entries(formData).forEach(([key, value]) => {
-      formDataToSend.append(key, value);
-    });
-
-    try {
-      const response = await fetch('https://api.web3forms.com/submit', {
-        method: 'POST',
-        body: formDataToSend
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        setIsSubmitted(true);
-        setSubmissionStatus('Message sent successfully!');
-        setFormData({ name: '', email: '', subject: '', message: '' });
-      } else {
-        console.log('Error', data);
-        setSubmissionStatus(data.message || 'Something went wrong. Please try again.');
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      setSubmissionStatus('Failed to send message. Please try again.');
-    }
-
-    setTimeout(() => {
-      setIsSubmitted(false);
-      setSubmissionStatus('');
-    }, 3000);
-  };
-
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="text-center mb-12">
@@ -66,7 +15,6 @@ const Contact = () => {
         {/* Contact Information */}
         <div>
           <h2 className="text-2xl font-semibold text-slate-900 mb-6">Contact Information</h2>
-          
           <div className="space-y-6">
             <div className="flex items-start space-x-4">
               <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
@@ -128,90 +76,81 @@ const Contact = () => {
           </div>
         </div>
 
-        {/* Contact Form */}
+        {/* Contact Form with FormSubmit */}
         <div>
           <div className="bg-white rounded-lg shadow-md p-8">
             <h2 className="text-2xl font-semibold text-slate-900 mb-6">Send us a Message</h2>
-            
-            {isSubmitted ? (
-              <div className="text-center py-8">
-                <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-slate-900 mb-2">{submissionStatus}</h3>
-                <p className="text-slate-600">
-                  Thank you for your message. We'll get back to you within 24 hours.
-                </p>
+
+            <form
+              action="https://formsubmit.co/mobilepinkumar@gmail.com"
+              method="POST"
+              className="space-y-6"
+            >
+              {/* Hidden inputs */}
+              <input type="hidden" name="_captcha" value="false" />
+              <input type="hidden" name="_template" value="box" />
+              <input type="hidden" name="_autoresponse" value="Thank you for contacting us! We will reply soon." />
+
+              <div>
+                <label htmlFor="name" className="block text-sm font-medium text-slate-700 mb-2">
+                  Full Name
+                </label>
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  required
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                />
               </div>
-            ) : (
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-slate-700 mb-2">
-                    Full Name
-                  </label>
-                  <input
-                    type="text"
-                    id="name"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                    required
-                  />
-                </div>
 
-                <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-2">
-                    Email Address
-                  </label>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                    required
-                  />
-                </div>
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-2">
+                  Email Address
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  required
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                />
+              </div>
 
-                <div>
-                  <label htmlFor="subject" className="block text-sm font-medium text-slate-700 mb-2">
-                    Subject
-                  </label>
-                  <input
-                    type="text"
-                    id="subject"
-                    name="subject"
-                    value={formData.subject}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                    required
-                  />
-                </div>
+              <div>
+                <label htmlFor="subject" className="block text-sm font-medium text-slate-700 mb-2">
+                  Subject
+                </label>
+                <input
+                  type="text"
+                  id="subject"
+                  name="subject"
+                  required
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                />
+              </div>
 
-                <div>
-                  <label htmlFor="message" className="block text-sm font-medium text-slate-700 mb-2">
-                    Message
-                  </label>
-                  <textarea
-                    id="message"
-                    name="message"
-                    value={formData.message}
-                    onChange={handleInputChange}
-                    rows={6}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                    required
-                  />
-                </div>
+              <div>
+                <label htmlFor="message" className="block text-sm font-medium text-slate-700 mb-2">
+                  Message
+                </label>
+                <textarea
+                  id="message"
+                  name="message"
+                  rows="6"
+                  required
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                />
+              </div>
 
-                <button
-                  type="submit"
-                  className="w-full bg-orange-500 text-white py-3 rounded-lg hover:bg-orange-600 transition-colors duration-200 flex items-center justify-center space-x-2"
-                >
-                  <Send className="h-5 w-5" />
-                  <span>Send Message</span>
-                </button>
-              </form>
-            )}
+              <button
+                type="submit"
+                className="w-full bg-orange-500 text-white py-3 rounded-lg hover:bg-orange-600 transition-colors duration-200 flex items-center justify-center space-x-2"
+              >
+                <Send className="h-5 w-5" />
+                <span>Send Message</span>
+              </button>
+            </form>
           </div>
         </div>
       </div>
