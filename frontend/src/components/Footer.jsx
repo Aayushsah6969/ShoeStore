@@ -17,7 +17,7 @@ const Footer = () => {
               <div className="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center">
                 <span className="text-white font-bold text-sm">S</span>
               </div>
-              <span className="text-xl font-bold">SoleStyle</span>
+              <span className="text-xl font-bold">Sneakers</span>
             </div>
             <p className="text-slate-400 mb-4 text-sm sm:text-base">
               Your premium destination for the latest in footwear fashion. Step into style with our carefully curated collection.
@@ -76,7 +76,7 @@ const Footer = () => {
               </div>
               <div className="flex items-center space-x-3">
                 <Mail className="h-5 w-5 text-orange-500 flex-shrink-0" />
-                <span className="text-slate-400 text-sm sm:text-base">info@solestyle.com</span>
+                <span className="text-slate-400 text-sm sm:text-base">info@Sneakers.com</span>
               </div>
             </div>
           </div>
@@ -84,7 +84,7 @@ const Footer = () => {
 
         <div className="border-t border-slate-800 mt-8 pt-6 sm:pt-8 text-center">
           <p className="text-slate-400 text-sm sm:text-base">
-            © 2024 SoleStyle. All rights reserved. Made with ❤️ for shoe lovers.
+            © 2024 Sneakers. All rights reserved. Made with ❤️ for shoe lovers.
           </p>
         </div>
       </div>

@@ -96,7 +96,7 @@ const Login = () => {
             <div className="w-12 h-12 bg-slate-800 rounded-full flex items-center justify-center">
               <span className="text-white font-bold text-lg">S</span>
             </div>
-            <span className="text-2xl font-bold text-slate-800">SoleStyle</span>
+            <span className="text-2xl font-bold text-slate-800">Sneakers</span>
           </Link>
         </div>
 

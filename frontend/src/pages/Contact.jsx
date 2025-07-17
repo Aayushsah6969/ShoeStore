@@ -50,8 +50,8 @@ const Contact = () => {
               <div>
                 <h3 className="text-lg font-medium text-slate-900 mb-1">Email Address</h3>
                 <p className="text-slate-600">
-                  info@solestyle.com<br />
-                  support@solestyle.com
+                  info@Sneakers.com<br />
+                  support@Sneakers.com
                 </p>
               </div>
             </div>

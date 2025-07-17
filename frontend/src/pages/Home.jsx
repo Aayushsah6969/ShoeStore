@@ -100,7 +100,7 @@ const Home = () => {
         {/* Why Choose Us */}
         <section className="py-16">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-slate-900 mb-4">Why Choose SoleStyle?</h2>
+            <h2 className="text-3xl font-bold text-slate-900 mb-4">Why Choose Authentic Sneakers?</h2>
             <div className="w-24 h-1 bg-orange-500 mx-auto"></div>
           </div>
           
