@@ -9,18 +9,47 @@ const Contact = () => {
     message: ''
   });
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [submissionStatus, setSubmissionStatus] = useState('');
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsSubmitted(true);
+    setSubmissionStatus('Sending...');
+
+    const formDataToSend = new FormData();
+    formDataToSend.append('access_key', '77d0beee-9df2-4865-9034-f9de9571bc89');
+    Object.entries(formData).forEach(([key, value]) => {
+      formDataToSend.append(key, value);
+    });
+
+    try {
+      const response = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        body: formDataToSend
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setIsSubmitted(true);
+        setSubmissionStatus('Message sent successfully!');
+        setFormData({ name: '', email: '', subject: '', message: '' });
+      } else {
+        console.log('Error', data);
+        setSubmissionStatus(data.message || 'Something went wrong. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      setSubmissionStatus('Failed to send message. Please try again.');
+    }
+
     setTimeout(() => {
       setIsSubmitted(false);
-      setFormData({ name: '', email: '', subject: '', message: '' });
+      setSubmissionStatus('');
     }, 3000);
   };
 
@@ -107,7 +136,7 @@ const Contact = () => {
             {isSubmitted ? (
               <div className="text-center py-8">
                 <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-slate-900 mb-2">Message Sent!</h3>
+                <h3 className="text-xl font-semibold text-slate-900 mb-2">{submissionStatus}</h3>
                 <p className="text-slate-600">
                   Thank you for your message. We'll get back to you within 24 hours.
                 </p>

@@ -3,7 +3,7 @@ import nodemailer from 'nodemailer';
 const transporter = nodemailer.createTransport({
   service: 'gmail', // adjust as per your SMTP
   auth: {
-    user: process.env.EMAIL_USER,
+    user: process.env.EMAIL_FROM,
     pass: process.env.EMAIL_PASS,
   },
 });

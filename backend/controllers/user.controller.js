@@ -161,7 +161,7 @@ export async function requestPasswordReset(req, res) {
       [token, expiry, email]
     );
 
-    const resetLink = `${process.env.APP_URL}/reset-password?token=${token}&email=${encodeURIComponent(email)}`;
+    const resetLink = `${process.env.APP_URL}/reset-password?token=${token}&email=${email}`;
 
     await sendResetPasswordEmail({ toEmail: email, toName: name, resetUrl: resetLink });
 
@@ -174,7 +174,10 @@ export async function requestPasswordReset(req, res) {
 }
 
 export async function resetPassword(req, res) {
-  const { email, token, newPassword } = req.body;
+  // Get token and email from query parameters
+  const { token, email } = req.query;
+  // Get new password from request body
+  const { newPassword } = req.body;
 
   if (!email || !token || !newPassword) {
     return res.status(400).json({ success: false, message: 'Email, token, and new password are required.' });
