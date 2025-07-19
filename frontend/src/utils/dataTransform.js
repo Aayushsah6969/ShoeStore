@@ -17,6 +17,8 @@ export function transformApiProduct(apiProduct) {
     onSale: (apiProduct.discount_percentage && apiProduct.discount_percentage > 0) || apiProduct.on_sale || false,
     rating: typeof apiProduct.rating === 'number' ? apiProduct.rating : 5,
     reviews: typeof apiProduct.reviews === 'number' ? apiProduct.reviews : 0,
+    discount_percentage: apiProduct.discount_percentage || 0,
+    stock_quantity: apiProduct.stock_quantity || 0,
   };
 }
 

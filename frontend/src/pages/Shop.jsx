@@ -34,16 +34,19 @@ const Shop = () => {
       if (!product) return false;
 
       // Search filter
-      if (filters?.search && product.name && product.brand) {
-        if (!product.name.toLowerCase().includes(filters.search.toLowerCase()) &&
-            !product.brand.toLowerCase().includes(filters.search.toLowerCase())) {
+      if (filters?.search && (product.product_name || product.name)) {
+        const searchTerm = filters.search.toLowerCase();
+        const productName = (product.product_name || product.name || '').toLowerCase();
+        const productBrand = (product.brand || '').toLowerCase();
+        if (!productName.includes(searchTerm) && !productBrand.includes(searchTerm)) {
           return false;
         }
       }
 
       // Price filter
-      if (filters?.priceRange && typeof product.price === 'number') {
-        if (product.price < filters.priceRange[0] || product.price > filters.priceRange[1]) {
+      if (filters?.priceRange && product.price) {
+        const productPrice = parseFloat(product.price);
+        if (productPrice < filters.priceRange[0] || productPrice > filters.priceRange[1]) {
           return false;
         }
       }
@@ -56,8 +59,9 @@ const Shop = () => {
       }
 
       // Size filter
-      if (filters?.sizes?.length > 0 && Array.isArray(product.sizes)) {
-        if (!filters.sizes.some(size => product.sizes.includes(size))) {
+      if (filters?.sizes?.length > 0) {
+        const productSizes = product.available_sizes || product.sizes || [];
+        if (!Array.isArray(productSizes) || !filters.sizes.some(size => productSizes.includes(size))) {
           return false;
         }
       }
@@ -69,10 +73,10 @@ const Shop = () => {
     if (filters?.sortBy) {
       switch (filters.sortBy) {
         case 'price-low':
-          filtered.sort((a, b) => (a.price || 0) - (b.price || 0));
+          filtered.sort((a, b) => parseFloat(a.price || 0) - parseFloat(b.price || 0));
           break;
         case 'price-high':
-          filtered.sort((a, b) => (b.price || 0) - (a.price || 0));
+          filtered.sort((a, b) => parseFloat(b.price || 0) - parseFloat(a.price || 0));
           break;
         case 'newest':
           // In a real app, you'd sort by date

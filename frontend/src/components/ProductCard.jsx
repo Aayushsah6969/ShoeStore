@@ -4,7 +4,7 @@ import { Heart, ShoppingCart, Star } from 'lucide-react';
 import { useStore } from '../store/useStore';
 
 const ProductCard = ({ product }) => {
-  const sizes = Array.isArray(product.sizes) ? product.sizes : [];
+  const sizes = Array.isArray(product.available_sizes) ? product.available_sizes : (Array.isArray(product.sizes) ? product.sizes : []);
   const [selectedSize] = useState(sizes[0]); // keep for addToCart compatibility
   const { addToCart, isInWishlist, addToWishlist, removeFromWishlist } = useStore();
 
@@ -46,14 +46,14 @@ const ProductCard = ({ product }) => {
       <Link to={`/product/${product.id}`}>
         <div className="relative aspect-square overflow-hidden">
           <img
-            src={product.image}
-            alt={product.name}
+            src={product.product_images?.[0] || product.image}
+            alt={product.product_name || product.name}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />
           {/* Discount Badge */}
-          {getDiscountPercentage(product) && getDiscountPercentage(product) > 0 && (
+          {product.discount_percentage && product.discount_percentage > 0 && (
             <div className="absolute top-2 left-2 bg-green-500 text-white px-2 py-1 rounded-full text-xs font-bold z-10">
-              -{getDiscountPercentage(product)}%
+              -{product.discount_percentage}%
             </div>
           )}
           {/* Sale Badge */}
@@ -63,7 +63,7 @@ const ProductCard = ({ product }) => {
             </div>
           )}
           {/* Featured Badge */}
-          {product.featured && (
+          {(product.is_featured || product.featured) && (
             <div className="absolute top-2 right-2 bg-orange-500 text-white px-2 py-1 rounded-full text-xs font-bold">
               FEATURED
             </div>
@@ -84,9 +84,9 @@ const ProductCard = ({ product }) => {
       <div className="p-2 sm:p-3">
         <Link to={`/product/${product.id}`}>
           <h3 className="text-sm sm:text-base font-semibold text-slate-900 mb-1 hover:text-slate-700 transition-colors duration-200 line-clamp-2">
-            {product.name}
+            {product.product_name || product.name}
           </h3>
-          <p className="text-xs text-slate-600 mb-1">{product.brand}</p>
+          {product.brand && <p className="text-xs text-slate-600 mb-1">{product.brand}</p>}
           {/* Rating */}
           <div className="flex items-center mb-1">
             <div className="flex items-center">
@@ -109,7 +109,7 @@ const ProductCard = ({ product }) => {
               <>
                 <div className="flex items-center space-x-1 mb-0.5">
                   <span className="text-xs text-slate-500 line-through">₹{parseFloat(product.price * 100/(100-product.discount_percentage)).toFixed(2)}</span>
-                  <span className="text-xs text-green-600 font-bold ml-1">-{product.discount_percentage}%</span>
+                  {/* <span className="text-xs text-green-600 font-bold ml-1">-{product.discount_percentage}%</span> */}
                 </div>
                 <div className="flex items-center">
                   <span className="text-base sm:text-lg font-bold text-slate-900">₹{product.price}</span>
