@@ -325,8 +325,8 @@ const Products = () => {
                         <div>
                           {discountedPrice ? (
                             <>
-                              <span className="line-through text-gray-500">₹{product.price}</span>
-                              <span className="ml-2 text-orange-600 font-semibold">₹{discountedPrice.toFixed(2)}</span>
+                              <span className=" text-gray-500">₹{product.price}</span>
+                              {/* <span className="ml-2 text-orange-600 font-semibold">₹{discountedPrice.toFixed(2)}</span> */}
                               <span className="ml-1 text-xs text-green-600">({product.discount_percentage}% off)</span>
                             </>
                           ) : (
