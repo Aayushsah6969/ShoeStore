@@ -111,7 +111,7 @@ const Orders = () => {
                   </p>
                   <p>
                     <span className="font-medium">Total:</span>{' '}
-                    ${order.total_price ? Number(order.total_price).toFixed(2) : '0.00'}
+                    ₹{order.total_price ? Number(order.total_price).toFixed(2) : '0.00'}
                   </p>
                 </div>
               </div>
@@ -149,7 +149,7 @@ const Orders = () => {
                           </p>
                         </div>
                         <p className="font-medium">
-                          ${typeof total === 'number' && isFinite(total) ? total.toFixed(2) : '0.00'}
+                          ₹{typeof total === 'number' && isFinite(total) ? total.toFixed(2) : '0.00'}
                         </p>
                       </div>
                     );
@@ -234,7 +234,7 @@ const Orders = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      ${order.total_price ? Number(order.total_price).toFixed(2) : '0.00'}
+                      ₹{order.total_price ? Number(order.total_price).toFixed(2) : '0.00'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <select
