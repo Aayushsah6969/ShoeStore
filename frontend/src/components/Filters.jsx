@@ -1,7 +1,9 @@
 import React from 'react';
 import { X } from 'lucide-react';
 import { useStore } from '../store/useStore';
-import { brands, sizes, colors } from '../data/products';
+import { sizes } from '../data/products';
+
+const categories = ['Sports', 'Fashion', 'Party', 'Tourist', 'Jungle'];
 
 const Filters = ({ isOpen, onClose }) => {
   const { filters, setFilters, resetFilters } = useStore();
@@ -12,11 +14,11 @@ const Filters = ({ isOpen, onClose }) => {
     setFilters({ priceRange: newRange });
   };
 
-  const handleBrandToggle = (brand) => {
-    const newBrands = filters.brands.includes(brand)
-      ? filters.brands.filter(b => b !== brand)
-      : [...filters.brands, brand];
-    setFilters({ brands: newBrands });
+  const handleCategoryToggle = (category) => {
+    const newCategories = filters.categories.includes(category)
+      ? filters.categories.filter(c => c !== category)
+      : [...filters.categories, category];
+    setFilters({ categories: newCategories });
   };
 
   const handleSizeToggle = (size) => {
@@ -26,20 +28,13 @@ const Filters = ({ isOpen, onClose }) => {
     setFilters({ sizes: newSizes });
   };
 
-  const handleColorToggle = (color) => {
-    const newColors = filters.colors.includes(color)
-      ? filters.colors.filter(c => c !== color)
-      : [...filters.colors, color];
-    setFilters({ colors: newColors });
-  };
-
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
       <div className="flex items-center justify-center min-h-screen px-4">
         <div className="fixed inset-0 bg-black bg-opacity-50" onClick={onClose}></div>
-        
+
         <div className="relative bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
           <div className="flex items-center justify-between p-6 border-b">
             <h2 className="text-xl font-semibold text-slate-900">Filters</h2>
@@ -86,63 +81,44 @@ const Filters = ({ isOpen, onClose }) => {
               </div>
             </div>
 
-            {/* Brands */}
+            {/* Categories */}
             <div>
-              <h3 className="text-lg font-medium text-slate-900 mb-3">Brands</h3>
+              <h3 className="text-lg font-medium text-slate-900 mb-3">Categories</h3>
               <div className="space-y-2">
-                {brands.map((brand) => (
-                  <label key={brand} className="flex items-center">
+                {categories.map((category) => (
+                  <label key={category} className="flex items-center">
                     <input
                       type="checkbox"
-                      checked={filters.brands.includes(brand)}
-                      onChange={() => handleBrandToggle(brand)}
+                      checked={filters.categories.includes(category)}
+                      onChange={() => handleCategoryToggle(category)}
                       className="rounded border-slate-300 text-orange-500 focus:ring-orange-500"
                     />
-                    <span className="ml-3 text-slate-700">{brand}</span>
+                    <span className="ml-3 text-slate-700">{category}</span>
                   </label>
                 ))}
               </div>
             </div>
 
-            {/* Sizes */}
-            <div>
-              <h3 className="text-lg font-medium text-slate-900 mb-3">Sizes</h3>
-              <div className="grid grid-cols-4 gap-2">
-                {sizes.map((size) => (
-                  <button
-                    key={size}
-                    onClick={() => handleSizeToggle(size)}
-                    className={`px-3 py-2 rounded-lg border-2 text-sm font-medium transition-colors duration-200 ${
-                      filters.sizes.includes(size)
-                        ? 'border-orange-500 bg-orange-500 text-white'
-                        : 'border-slate-300 text-slate-700 hover:border-slate-400'
-                    }`}
-                  >
-                    {size}
-                  </button>
-                ))}
-              </div>
-            </div>
+         {/* Sizes */}
+<div>
+  <h3 className="text-lg font-medium text-slate-900 mb-3">Sizes</h3>
+  <div className="grid grid-cols-4 gap-2">
+    {sizes.map((size) => (
+      <button
+        key={size}
+        onClick={() => handleSizeToggle(size)}
+        className={`px-3 py-2 rounded-lg border-2 text-sm font-medium transition-colors duration-200 ${
+          (filters.sizes || []).includes(size)
+            ? 'border-orange-500 bg-orange-500 text-white'
+            : 'border-slate-300 text-slate-700 hover:border-slate-400'
+        }`}
+      >
+        {size}
+      </button>
+    ))}
+  </div>
+</div>
 
-            {/* Colors */}
-            <div>
-              <h3 className="text-lg font-medium text-slate-900 mb-3">Colors</h3>
-              <div className="grid grid-cols-3 gap-2">
-                {colors.map((color) => (
-                  <button
-                    key={color}
-                    onClick={() => handleColorToggle(color)}
-                    className={`px-3 py-2 rounded-lg border-2 text-sm font-medium transition-colors duration-200 ${
-                      filters.colors.includes(color)
-                        ? 'border-orange-500 bg-orange-500 text-white'
-                        : 'border-slate-300 text-slate-700 hover:border-slate-400'
-                    }`}
-                  >
-                    {color}
-                  </button>
-                ))}
-              </div>
-            </div>
 
             {/* Sort */}
             <div>

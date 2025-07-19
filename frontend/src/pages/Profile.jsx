@@ -57,22 +57,22 @@ const Profile = () => {
             </div>
 
             <nav className="space-y-2">
-              <a href="#" className="flex items-center space-x-3 px-4 py-2 text-slate-700 hover:bg-slate-50 rounded-lg">
+              {/* <a href="#" className="flex items-center space-x-3 px-4 py-2 text-slate-700 hover:bg-slate-50 rounded-lg">
                 <User className="h-5 w-5" />
                 <span>Profile Details</span>
-              </a>
+              </a> */}
               <a href="#" className="flex items-center space-x-3 px-4 py-2 text-slate-700 hover:bg-slate-50 rounded-lg">
                 <Package className="h-5 w-5" />
                 <span>Order History</span>
               </a>
-              <a href="#" className="flex items-center space-x-3 px-4 py-2 text-slate-700 hover:bg-slate-50 rounded-lg">
+              {/* <a href="#" className="flex items-center space-x-3 px-4 py-2 text-slate-700 hover:bg-slate-50 rounded-lg">
                 <Heart className="h-5 w-5" />
                 <span>Wishlist</span>
               </a>
               <a href="#" className="flex items-center space-x-3 px-4 py-2 text-slate-700 hover:bg-slate-50 rounded-lg">
                 <Settings className="h-5 w-5" />
                 <span>Settings</span>
-              </a>
+              </a> */}
               <button
                 onClick={logout}
                 className="w-full flex items-center space-x-3 px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg"

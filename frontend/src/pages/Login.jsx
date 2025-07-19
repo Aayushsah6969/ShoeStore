@@ -225,7 +225,7 @@ const Login = () => {
           </form>
 
           {/* Social Login Options */}
-          <div className="mt-6">
+          {/* <div className="mt-6">
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-slate-300" />
@@ -261,7 +261,7 @@ const Login = () => {
                 <span className="ml-2">Facebook</span>
               </button>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>

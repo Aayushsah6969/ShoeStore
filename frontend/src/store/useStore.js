@@ -8,23 +8,29 @@ import { transformApiProduct, transformCartToOrderItems } from '../utils/dataTra
 const defaultFilters = {
   search: '',
   priceRange: [0, 10000],
-  brands: [],
+  categories: [],
   sizes: [],
-  colors: [],
   sortBy: 'popularity'
 };
 
 export const useStore = create(
   persist(
     (set, get) => ({
-      // Cart state
+      filters: { ...defaultFilters, ...(get()?.filters || {}) },
+
+      setFilters: (newFilters) =>
+        set((state) => ({
+          filters: { ...state.filters, ...newFilters }
+        })),
+      resetFilters: () => set({ filters: defaultFilters }),
+
+      // Cart
       cart: [],
       addToCart: (item) => {
         const existingItem = get().cart.find(
-          (cartItem) => 
-            cartItem.product.id === item.product.id && 
-            cartItem.selectedSize === item.selectedSize && 
-            cartItem.selectedColor === item.selectedColor
+          (cartItem) =>
+            cartItem.product.id === item.product.id &&
+            cartItem.selectedSize === item.selectedSize
         );
 
         if (existingItem) {
@@ -56,33 +62,34 @@ export const useStore = create(
         }
       },
       clearCart: () => set({ cart: [] }),
-      getCartTotal: () => {
-        return get().cart.reduce((total, item) => total + (item.product.price * item.quantity), 0);
-      },
-      getCartCount: () => {
-        return get().cart.reduce((total, item) => total + item.quantity, 0);
-      },
+      getCartTotal: () =>
+        get().cart.reduce(
+          (total, item) => total + item.product.price * item.quantity,
+          0
+        ),
+      getCartCount: () =>
+        get().cart.reduce((total, item) => total + item.quantity, 0),
 
-      // User state
+      // User
       user: null,
       isAuthenticated: false,
       authLoading: false,
       authError: null,
-      
+
       login: async (data) => {
         set({ authLoading: true, authError: null });
         try {
           const response = await authService.login(data);
           if (response.success) {
             if (response.user) {
-              set({ 
+              set({
                 user: {
                   id: response.user.id || '',
                   name: response.user.full_name,
                   email: response.user.email
-                }, 
+                },
                 isAuthenticated: true,
-                authLoading: false 
+                authLoading: false
               });
             } else {
               set({ isAuthenticated: true, authLoading: false });
@@ -103,14 +110,14 @@ export const useStore = create(
           const response = await authService.signup(data);
           if (response.success) {
             if (response.user) {
-              set({ 
+              set({
                 user: {
                   id: response.user.id || '',
                   name: response.user.full_name,
                   email: response.user.email
-                }, 
+                },
                 isAuthenticated: true,
-                authLoading: false 
+                authLoading: false
               });
             } else {
               set({ authLoading: false });
@@ -131,18 +138,18 @@ export const useStore = create(
         } catch (error) {
           console.error('Logout error:', error);
         } finally {
-          set({ 
-            user: null, 
+          set({
+            user: null,
             isAuthenticated: false,
             orders: [],
-            cart: [] // Clear cart on logout
+            cart: []
           });
         }
       },
 
       clearAuthError: () => set({ authError: null }),
 
-      // Products state
+      // Products
       products: [],
       productsLoading: false,
       productsError: null,
@@ -168,24 +175,29 @@ export const useStore = create(
         }
       },
 
-      // Orders state
+      // Orders
       orders: [],
       ordersLoading: false,
       ordersError: null,
 
       fetchOrders: async () => {
         if (!get().isAuthenticated) return;
-        
+
         set({ ordersLoading: true, ordersError: null });
         try {
           const apiOrders = await orderService.getMyOrders();
-          const orders = apiOrders.map(order => ({
+          const orders = apiOrders.map((order) => ({
             id: order.id,
             date: order.created_at,
             total: parseFloat(order.total_price),
             status: order.delivery_status || order.status || 'pending',
-            items: order.order_items.map(item => ({
-              id: item.product_id + '-' + (item.size || '') + '-' + (item.price_at_purchase || ''),
+            items: order.order_items.map((item) => ({
+              id:
+                item.product_id +
+                '-' +
+                (item.size || '') +
+                '-' +
+                (item.price_at_purchase || ''),
               product: {
                 id: item.product_id,
                 name: item.product_name || 'Unknown Product',
@@ -203,7 +215,7 @@ export const useStore = create(
                 onSale: false,
                 rating: 0,
                 reviews: 0,
-                stock_quantity: 0 // required by Product interface
+                stock_quantity: 0
               },
               quantity: item.quantity,
               selectedSize: item.size,
@@ -220,14 +232,13 @@ export const useStore = create(
         try {
           const cart = get().cart;
           const orderItems = transformCartToOrderItems(cart);
-          
+
           const apiOrder = await orderService.createOrder({
             order_items: orderItems,
             shipping_address: orderData.shipping_address,
             payment_info: orderData.payment_info
           });
-          
-          // Add to local orders
+
           const order = {
             id: apiOrder.id,
             date: apiOrder.created_at,
@@ -235,7 +246,7 @@ export const useStore = create(
             status: apiOrder.status,
             items: cart
           };
-          
+
           set({ orders: [...get().orders, order] });
           return apiOrder;
         } catch (error) {
@@ -246,12 +257,6 @@ export const useStore = create(
 
       addOrder: (order) => set({ orders: [...get().orders, order] }),
 
-      // Filters
-      filters: defaultFilters,
-      setFilters: (newFilters) => set({ filters: { ...get().filters, ...newFilters } }),
-      resetFilters: () => set({ filters: defaultFilters }),
-
-      // Wishlist
       wishlist: [],
       addToWishlist: (productId) => {
         if (!get().wishlist.includes(productId)) {
@@ -266,12 +271,14 @@ export const useStore = create(
     {
       name: 'shoe-store',
       partialize: (state) => ({
-        // Only persist certain parts of the state
         cart: state.cart,
         user: state.user,
         isAuthenticated: state.isAuthenticated,
         wishlist: state.wishlist,
-        filters: state.filters
+        filters: {
+          ...defaultFilters,
+          ...(state.filters || {})
+        }
       })
     }
   )
