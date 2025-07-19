@@ -105,13 +105,16 @@ const ProductCard = ({ product }) => {
           </div>
           {/* Price */}
           <div className="flex flex-col items-start">
-            {product.originalPrice && product.originalPrice > product.price && getDiscountPercentage(product) && getDiscountPercentage(product) > 0 ? (
+            {product.discount_percentage && product.discount_percentage > 0 ? (
               <>
                 <div className="flex items-center space-x-1 mb-0.5">
-                  <span className="text-xs text-slate-500 line-through">₹{product.originalPrice}</span>
-                  <span className="text-xs text-green-600 font-bold ml-1">-{getDiscountPercentage(product)}%</span>
+                  <span className="text-xs text-slate-500 line-through">₹{parseFloat(product.price * 100/(100-product.discount_percentage)).toFixed(2)}</span>
+                  <span className="text-xs text-green-600 font-bold ml-1">-{product.discount_percentage}%</span>
                 </div>
-                <span className="text-base sm:text-lg font-bold text-slate-900">₹{product.price}</span>
+                <div className="flex items-center">
+                  <span className="text-base sm:text-lg font-bold text-slate-900">₹{product.price}</span>
+                  <span className="text-sm text-green-600 font-bold ml-2">-{product.discount_percentage}% OFF</span>
+                </div>
               </>
             ) : (
               <span className="text-base sm:text-lg font-bold text-slate-900">₹{product.price}</span>
