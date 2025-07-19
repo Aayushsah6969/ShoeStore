@@ -108,13 +108,13 @@ const ProductCard = ({ product }) => {
             {product.originalPrice && product.originalPrice > product.price && getDiscountPercentage(product) && getDiscountPercentage(product) > 0 ? (
               <>
                 <div className="flex items-center space-x-1 mb-0.5">
-                  <span className="text-xs text-slate-500 line-through">${product.originalPrice}</span>
+                  <span className="text-xs text-slate-500 line-through">₹{product.originalPrice}</span>
                   <span className="text-xs text-green-600 font-bold ml-1">-{getDiscountPercentage(product)}%</span>
                 </div>
-                <span className="text-base sm:text-lg font-bold text-slate-900">${product.price}</span>
+                <span className="text-base sm:text-lg font-bold text-slate-900">₹{product.price}</span>
               </>
             ) : (
-              <span className="text-base sm:text-lg font-bold text-slate-900">${product.price}</span>
+              <span className="text-base sm:text-lg font-bold text-slate-900">₹{product.price}</span>
             )}
           </div>
         </Link>

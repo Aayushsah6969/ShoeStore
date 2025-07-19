@@ -215,14 +215,14 @@ const ProductDetail = () => {
             <div className="flex items-center space-x-2 mb-6">
               {product.originalPrice && product.originalPrice > product.price ? (
                 <>
-                  <span className="text-lg text-slate-500 line-through">${product.originalPrice}</span>
+                  <span className="text-lg text-slate-500 line-through">₹{product.originalPrice}</span>
                   {typeof product.discount_percentage === 'number' && product.discount_percentage > 0 && (
                     <span className="text-base text-green-600 font-bold ml-1">-{product.discount_percentage}%</span>
                   )}
-                  <span className="text-2xl sm:text-3xl font-bold text-slate-900 ml-2">${product.price}</span>
+                  <span className="text-2xl sm:text-3xl font-bold text-slate-900 ml-2">₹{product.price}</span>
                 </>
               ) : (
-                <span className="text-2xl sm:text-3xl font-bold text-slate-900">${product.price}</span>
+                <span className="text-2xl sm:text-3xl font-bold text-slate-900">₹{product.price}</span>
               )}
             </div>
           </div>
@@ -306,7 +306,7 @@ const ProductDetail = () => {
           <div className="grid grid-cols-1 gap-4 mb-8 p-4 bg-slate-50 rounded-lg">
             <div className="flex items-center space-x-3">
               <Truck className="h-5 w-5 text-orange-500" />
-              <span className="text-sm text-slate-700">Free shipping on orders over $50</span>
+              <span className="text-sm text-slate-700">Free shipping on orders over ₹50</span>
             </div>
             <div className="flex items-center space-x-3">
               <RotateCcw className="h-5 w-5 text-orange-500" />

@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 // Create Product
 export const createProduct = async (req, res) => {
   try {
-    const {
+    let {
       product_name,
       category,
       price,
@@ -17,6 +17,10 @@ export const createProduct = async (req, res) => {
       available_sizes,
     } = req.body;
 
+    // Calculate discounted price
+    const discountAmount = (price * (discount_percentage || 0)) / 100;
+    price = price - discountAmount; // Update price to be the discounted price
+
     const newProduct = await pool.query(
       `INSERT INTO products 
       (id, product_name, category, price, discount_percentage, stock_quantity, product_images, description, is_featured, available_sizes)
@@ -25,7 +29,7 @@ export const createProduct = async (req, res) => {
         uuidv4(),
         product_name,
         category,
-        price,
+        price, // Now contains the discounted price
         discount_percentage,
         stock_quantity,
         product_images,
@@ -59,7 +63,7 @@ export const updateProduct = async (req, res) => {
     const { id } = req.params;
 // console.log('Update product body:', req.body);
 
-    const {
+    let {
       product_name,
       category,
       price,
@@ -70,6 +74,10 @@ export const updateProduct = async (req, res) => {
       is_featured,
       available_sizes,
     } = req.body;
+
+    // Calculate discounted price
+    const discountAmount = (price * (discount_percentage || 0)) / 100;
+    price = price - discountAmount; // Update price to be the discounted price
 
 
     const updated = await pool.query(
@@ -88,7 +96,7 @@ export const updateProduct = async (req, res) => {
       [
         product_name,
         category,
-        price,
+        price, // Now contains the discounted price
         discount_percentage,
         stock_quantity,
         product_images,

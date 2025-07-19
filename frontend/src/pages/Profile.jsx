@@ -154,7 +154,7 @@ const Profile = () => {
                         </div>
                         <div className="text-right">
                           <div className="text-lg font-semibold text-slate-900">
-                            ${order.total}
+                            ₹{order.total}
                           </div>
                           <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
                             {order.status }
@@ -178,7 +178,7 @@ const Profile = () => {
                             </div>
                             <div className="text-sm text-slate-900">
                               {item && item.product && typeof item.product.price === 'number' && typeof item.quantity === 'number' && !isNaN(item.product.price) && !isNaN(item.quantity)
-                                ? `$${(item.product.price * item.quantity).toFixed(2)}`
+                                ? `₹${(item.product.price * item.quantity).toFixed(2)}`
                                 : '--'}
                             </div>
                           </div>
