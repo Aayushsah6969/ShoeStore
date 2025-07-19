@@ -59,8 +59,14 @@ const ProductDetail = () => {
   useEffect(() => {
     if (product) {
       setSelectedSize((Array.isArray(product.sizes) && product.sizes[0]) || '');
+      // Reset quantity to 1 or max available stock if current quantity exceeds stock
+      if (product.stock_quantity <= 0) {
+        setQuantity(1);
+      } else if (quantity > product.stock_quantity) {
+        setQuantity(Math.min(quantity, product.stock_quantity));
+      }
     }
-  }, [product]);
+  }, [product, quantity]);
 
   const images = (product && Array.isArray(product.images)) ? product.images : [];
   const sizes = (product && Array.isArray(product.sizes)) ? product.sizes : [];
@@ -72,6 +78,14 @@ const ProductDetail = () => {
   const handleAddToCart = () => {
     if (!selectedSize) {
       alert('Please select size');
+      return;
+    }
+    if (product.stock_quantity <= 0) {
+      alert('Sorry, this product is out of stock');
+      return;
+    }
+    if (quantity > product.stock_quantity) {
+      alert(`Only ${product.stock_quantity} items available in stock`);
       return;
     }
     addToCart({
@@ -89,6 +103,14 @@ const ProductDetail = () => {
     }
     if (!user) {
       navigate('/login');
+      return;
+    }
+    if (product.stock_quantity <= 0) {
+      alert('Sorry, this product is out of stock');
+      return;
+    }
+    if (quantity > product.stock_quantity) {
+      alert(`Only ${product.stock_quantity} items available in stock`);
       return;
     }
     clearCart();
@@ -191,9 +213,17 @@ const ProductDetail = () => {
             <p className="text-lg text-slate-600 mb-4">{product.brand}</p>
             {/* Stock Quantity */}
             {typeof product.stock_quantity !== 'undefined' && (
-              <p className="text-sm text-slate-700 mb-2">
-                <span className="stock_quantity font-semibold">In Stock:</span> {product.stock_quantity}
-              </p>
+              <div className="mb-2">
+                {product.stock_quantity > 0 ? (
+                  <p className="text-sm text-slate-700">
+                    <span className="font-semibold">In Stock:</span> {product.stock_quantity}
+                  </p>
+                ) : (
+                  <p className="text-sm text-red-600 font-semibold">
+                    Out of Stock
+                  </p>
+                )}
+              </div>
             )}
             {/* Rating */}
             <div className="flex items-center mb-4">
@@ -258,48 +288,64 @@ const ProductDetail = () => {
             <div className="flex items-center space-x-4">
               <button
                 onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                className="px-3 py-2 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors duration-200"
+                disabled={product.stock_quantity <= 0}
+                className="px-3 py-2 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 -
               </button>
               <span className="text-lg font-medium w-8 text-center">{quantity}</span>
               <button
-                onClick={() => setQuantity(quantity + 1)}
-                className="px-3 py-2 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors duration-200"
+                onClick={() => setQuantity(Math.min(product.stock_quantity || 0, quantity + 1))}
+                disabled={product.stock_quantity <= 0 || quantity >= (product.stock_quantity || 0)}
+                className="px-3 py-2 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 +
               </button>
             </div>
+            {product.stock_quantity > 0 && product.stock_quantity < 10 && (
+              <p className="text-sm text-orange-600 mt-2">
+                Only {product.stock_quantity} left in stock!
+              </p>
+            )}
           </div>
 
           {/* Action Buttons */}
           <div className="space-y-4 mb-8">
-            {/* Buy Now Button - Primary */}
-            <button
-              onClick={handleBuyNow}
-              className="w-full bg-orange-500 text-white px-6 py-4 rounded-lg hover:bg-orange-600 transition-all duration-200 flex items-center justify-center space-x-2 text-lg font-semibold transform hover:scale-[1.02]"
-            >
-              <Zap className="h-5 w-5" />
-              <span>Buy Now</span>
-            </button>
+            {product.stock_quantity <= 0 ? (
+              <div className="w-full bg-red-100 text-red-700 px-6 py-4 rounded-lg flex items-center justify-center space-x-2 text-lg font-semibold">
+                <AlertCircle className="h-5 w-5" />
+                <span>Out of Stock</span>
+              </div>
+            ) : (
+              <>
+                {/* Buy Now Button - Primary */}
+                <button
+                  onClick={handleBuyNow}
+                  className="w-full bg-orange-500 text-white px-6 py-4 rounded-lg hover:bg-orange-600 transition-all duration-200 flex items-center justify-center space-x-2 text-lg font-semibold transform hover:scale-[1.02]"
+                >
+                  <Zap className="h-5 w-5" />
+                  <span>Buy Now</span>
+                </button>
 
-            {/* Add to Cart and Wishlist */}
-            <div className="flex space-x-4">
-              <button
-                onClick={handleAddToCart}
-                className="flex-1 border-2 border-slate-800 text-slate-800 px-6 py-3 rounded-lg hover:bg-slate-800 hover:text-white transition-colors duration-200 flex items-center justify-center space-x-2 font-medium"
-              >
-                <ShoppingCart className="h-5 w-5" />
-                <span>Add to Cart</span>
-              </button>
-              
-              <button
-                onClick={handleWishlistToggle}
-                className="px-6 py-3 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors duration-200"
-              >
-                <Heart className={`h-5 w-5 ${isInWishlist(product.id) ? 'text-red-500 fill-current' : 'text-slate-600'}`} />
-              </button>
-            </div>
+                {/* Add to Cart and Wishlist */}
+                <div className="flex space-x-4">
+                  <button
+                    onClick={handleAddToCart}
+                    className="flex-1 border-2 border-slate-800 text-slate-800 px-6 py-3 rounded-lg hover:bg-slate-800 hover:text-white transition-colors duration-200 flex items-center justify-center space-x-2 font-medium"
+                  >
+                    <ShoppingCart className="h-5 w-5" />
+                    <span>Add to Cart</span>
+                  </button>
+                  
+                  <button
+                    onClick={handleWishlistToggle}
+                    className="px-6 py-3 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors duration-200"
+                  >
+                    <Heart className={`h-5 w-5 ${isInWishlist(product.id) ? 'text-red-500 fill-current' : 'text-slate-600'}`} />
+                  </button>
+                </div>
+              </>
+            )}
           </div>
 
           {/* Features */}

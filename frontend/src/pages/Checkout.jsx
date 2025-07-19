@@ -37,6 +37,13 @@ const Checkout = () => {
   const tax = total * 0.08;
   const finalTotal = total + shipping + tax;
 
+  // Check if there are any stock issues
+  const hasStockIssues = cart.some(item => 
+    !item.product.stock_quantity || 
+    item.product.stock_quantity <= 0 || 
+    item.quantity > item.product.stock_quantity
+  );
+
   // Prefill email and firstName from user if available
   React.useEffect(() => {
     if (user) {
@@ -59,6 +66,18 @@ const Checkout = () => {
     
     if (!isAuthenticated) {
       setError('Please log in to complete your order');
+      return;
+    }
+
+    // Check stock availability for all cart items
+    const outOfStockItems = cart.filter(item => 
+      !item.product.stock_quantity || item.product.stock_quantity <= 0 || 
+      item.quantity > item.product.stock_quantity
+    );
+
+    if (outOfStockItems.length > 0) {
+      const itemNames = outOfStockItems.map(item => item.product.name).join(', ');
+      setError(`The following items are out of stock or have insufficient quantity: ${itemNames}. Please update your cart.`);
       return;
     }
 
@@ -279,6 +298,43 @@ const Checkout = () => {
         </div>
       )}
 
+      {/* Stock Validation Warning */}
+      {(() => {
+        const outOfStockItems = cart.filter(item => 
+          !item.product.stock_quantity || item.product.stock_quantity <= 0
+        );
+        const insufficientStockItems = cart.filter(item => 
+          item.product.stock_quantity > 0 && item.quantity > item.product.stock_quantity
+        );
+        
+        if (outOfStockItems.length > 0 || insufficientStockItems.length > 0) {
+          return (
+            <div className="mb-6 p-4 bg-orange-50 border border-orange-200 rounded-lg flex items-start space-x-3">
+              <AlertCircle className="h-5 w-5 text-orange-500 flex-shrink-0 mt-0.5" />
+              <div>
+                <h3 className="text-sm font-medium text-orange-800">Stock Warning</h3>
+                <div className="text-sm text-orange-700 mt-1">
+                  {outOfStockItems.length > 0 && (
+                    <p className="mb-2">
+                      The following items are out of stock: {outOfStockItems.map(item => item.product.name).join(', ')}
+                    </p>
+                  )}
+                  {insufficientStockItems.length > 0 && (
+                    <p>
+                      The following items have insufficient stock: {insufficientStockItems.map(item => 
+                        `${item.product.name} (requested: ${item.quantity}, available: ${item.product.stock_quantity})`
+                      ).join(', ')}
+                    </p>
+                  )}
+                  <p className="mt-2 font-medium">Please update your cart before proceeding with the order.</p>
+                </div>
+              </div>
+            </div>
+          );
+        }
+        return null;
+      })()}
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Checkout Form */}
         <div>
@@ -458,13 +514,18 @@ const Checkout = () => {
 
             <button
               type="submit"
-              disabled={isProcessing || !isAuthenticated}
+              disabled={isProcessing || !isAuthenticated || hasStockIssues}
               className="w-full bg-orange-500 text-white py-4 rounded-lg hover:bg-orange-600 transition-colors duration-200 flex items-center justify-center space-x-2 disabled:opacity-50 text-lg font-semibold"
             >
               {isProcessing ? (
                 <>
                   <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
                   <span>Processing Payment...</span>
+                </>
+              ) : hasStockIssues ? (
+                <>
+                  <AlertCircle className="h-5 w-5" />
+                  <span>Stock Issues - Update Cart</span>
                 </>
               ) : (
                 <>
@@ -477,6 +538,11 @@ const Checkout = () => {
             {!isAuthenticated && (
               <p className="text-center text-sm text-red-600">
                 Please log in to complete your order
+              </p>
+            )}
+            {hasStockIssues && (
+              <p className="text-center text-sm text-orange-600">
+                Please resolve stock issues in your cart before proceeding
               </p>
             )}
           </form>
@@ -500,6 +566,16 @@ const Checkout = () => {
                     <p className="text-sm text-slate-600">
                       {item.selectedSize} • {item.selectedColor} • Qty: {item.quantity}
                     </p>
+                    {(!item.product.stock_quantity || item.product.stock_quantity <= 0) && (
+                      <p className="text-sm text-red-600 font-medium mt-1">
+                        Out of Stock
+                      </p>
+                    )}
+                    {item.product.stock_quantity > 0 && item.quantity > item.product.stock_quantity && (
+                      <p className="text-sm text-orange-600 font-medium mt-1">
+                        Only {item.product.stock_quantity} available
+                      </p>
+                    )}
                   </div>
                   <div className="text-slate-900 font-medium">
                     ₹{(item.product.price * item.quantity).toFixed(2)}
