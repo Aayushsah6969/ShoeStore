@@ -7,25 +7,38 @@ const categories = ['Sports', 'Fashion', 'Party', 'Tourist', 'Jungle'];
 
 const Filters = ({ isOpen, onClose }) => {
   const { filters, setFilters, resetFilters } = useStore();
+  
+  // Initialize filters if they don't exist
+  React.useEffect(() => {
+    if (!filters || !filters.categories || !filters.sizes || !filters.priceRange || !filters.sortBy) {
+      setFilters({
+        ...defaultFilters,
+        ...(filters || {})
+      });
+    }
+  }, [filters, setFilters]);
 
   const handlePriceChange = (value, index) => {
-    const newRange = [...filters.priceRange];
+    const currentRange = filters?.priceRange || [0, 10000];
+    const newRange = [...currentRange];
     newRange[index] = value;
-    setFilters({ priceRange: newRange });
+    setFilters({ ...filters, priceRange: newRange });
   };
 
   const handleCategoryToggle = (category) => {
-    const newCategories = filters.categories.includes(category)
-      ? filters.categories.filter(c => c !== category)
-      : [...filters.categories, category];
-    setFilters({ categories: newCategories });
+    const currentCategories = filters?.categories || [];
+    const newCategories = currentCategories.includes(category)
+      ? currentCategories.filter(c => c !== category)
+      : [...currentCategories, category];
+    setFilters({ ...filters, categories: newCategories });
   };
 
   const handleSizeToggle = (size) => {
-    const newSizes = filters.sizes.includes(size)
-      ? filters.sizes.filter(s => s !== size)
-      : [...filters.sizes, size];
-    setFilters({ sizes: newSizes });
+    const currentSizes = filters?.sizes || [];
+    const newSizes = currentSizes.includes(size)
+      ? currentSizes.filter(s => s !== size)
+      : [...currentSizes, size];
+    setFilters({ ...filters, sizes: newSizes });
   };
 
   if (!isOpen) return null;
@@ -54,7 +67,7 @@ const Filters = ({ isOpen, onClose }) => {
                 <div className="flex items-center space-x-4">
                   <input
                     type="number"
-                    value={filters.priceRange[0]}
+                    value={filters?.priceRange?.[0] || 0}
                     onChange={(e) => handlePriceChange(Number(e.target.value), 0)}
                     className="w-24 px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                     min="0"
@@ -63,7 +76,7 @@ const Filters = ({ isOpen, onClose }) => {
                   <span className="text-slate-500">to</span>
                   <input
                     type="number"
-                    value={filters.priceRange[1]}
+                    value={filters?.priceRange?.[1] || 10000}
                     onChange={(e) => handlePriceChange(Number(e.target.value), 1)}
                     className="w-24 px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                     min="0"
@@ -89,7 +102,7 @@ const Filters = ({ isOpen, onClose }) => {
                   <label key={category} className="flex items-center">
                     <input
                       type="checkbox"
-                      checked={filters.categories.includes(category)}
+                      checked={(filters?.categories || []).includes(category)}
                       onChange={() => handleCategoryToggle(category)}
                       className="rounded border-slate-300 text-orange-500 focus:ring-orange-500"
                     />
@@ -108,7 +121,7 @@ const Filters = ({ isOpen, onClose }) => {
         key={size}
         onClick={() => handleSizeToggle(size)}
         className={`px-3 py-2 rounded-lg border-2 text-sm font-medium transition-colors duration-200 ${
-          (filters.sizes || []).includes(size)
+          filters?.sizes?.includes(size)
             ? 'border-orange-500 bg-orange-500 text-white'
             : 'border-slate-300 text-slate-700 hover:border-slate-400'
         }`}

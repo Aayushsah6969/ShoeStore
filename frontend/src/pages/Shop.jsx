@@ -7,11 +7,17 @@ import { useStore } from '../store/useStore';
 const Shop = () => {
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const { 
-    products, 
+    products = [], 
     productsLoading, 
     productsError, 
     fetchProducts, 
-    filters 
+    filters = {
+      search: '',
+      priceRange: [0, 10000],
+      categories: [],
+      sizes: [],
+      sortBy: 'popularity'
+    }
   } = useStore();
 
   // Fetch products on component mount
@@ -22,52 +28,61 @@ const Shop = () => {
   }, [products.length, productsLoading, fetchProducts]);
 
   const filteredProducts = useMemo(() => {
+    if (!products) return [];
+    
     let filtered = products.filter(product => {
+      if (!product) return false;
+
       // Search filter
-      if (filters.search && !product.name.toLowerCase().includes(filters.search.toLowerCase()) &&
-          !product.brand.toLowerCase().includes(filters.search.toLowerCase())) {
-        return false;
+      if (filters?.search && product.name && product.brand) {
+        if (!product.name.toLowerCase().includes(filters.search.toLowerCase()) &&
+            !product.brand.toLowerCase().includes(filters.search.toLowerCase())) {
+          return false;
+        }
       }
 
       // Price filter
-      if (product.price < filters.priceRange[0] || product.price > filters.priceRange[1]) {
-        return false;
+      if (filters?.priceRange && typeof product.price === 'number') {
+        if (product.price < filters.priceRange[0] || product.price > filters.priceRange[1]) {
+          return false;
+        }
       }
 
-      // Brand filter
-      if (filters.brands.length > 0 && !filters.brands.includes(product.brand)) {
-        return false;
+      // Category filter
+      if (filters?.categories?.length > 0 && product.category) {
+        if (!filters.categories.includes(product.category)) {
+          return false;
+        }
       }
 
       // Size filter
-      if (filters.sizes.length > 0 && !filters.sizes.some(size => product.sizes.includes(size))) {
-        return false;
-      }
-
-      // Color filter
-      if (filters.colors.length > 0 && !filters.colors.some(color => product.colors.includes(color))) {
-        return false;
+      if (filters?.sizes?.length > 0 && Array.isArray(product.sizes)) {
+        if (!filters.sizes.some(size => product.sizes.includes(size))) {
+          return false;
+        }
       }
 
       return true;
     });
 
     // Sort products
-    switch (filters.sortBy) {
-      case 'price-low':
-        filtered.sort((a, b) => a.price - b.price);
-        break;
-      case 'price-high':
-        filtered.sort((a, b) => b.price - a.price);
-        break;
-      case 'newest':
-        // In a real app, you'd sort by date
-        filtered.sort((a, b) => b.id.localeCompare(a.id));
-        break;
-      case 'popularity':
-      default:
-        filtered.sort((a, b) => b.rating - a.rating);
-        break;
+    if (filters?.sortBy) {
+      switch (filters.sortBy) {
+        case 'price-low':
+          filtered.sort((a, b) => (a.price || 0) - (b.price || 0));
+          break;
+        case 'price-high':
+          filtered.sort((a, b) => (b.price || 0) - (a.price || 0));
+          break;
+        case 'newest':
+          // In a real app, you'd sort by date
+          filtered.sort((a, b) => (b.id || '').localeCompare(a.id || ''));
+          break;
+        case 'popularity':
+        default:
+          filtered.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+          break;
+      }
     }
 
     return filtered;
